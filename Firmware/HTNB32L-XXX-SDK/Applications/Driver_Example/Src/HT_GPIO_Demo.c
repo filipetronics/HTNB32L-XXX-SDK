@@ -58,7 +58,7 @@ static void HT_GPIO_Callback(void) {
   if (HT_GPIO_GetInterruptFlags(BUTTON_INSTANCE) & (1 << BUTTON_PIN)) {
       gpio_exti ^= 1;
       HT_GPIO_ClearInterruptFlags(BUTTON_INSTANCE, 1 << BUTTON_PIN);
-      delay_us(10000000);
+      //delay_us(10000000);  //em microsegundos = 10 segundos
   }
 
   HT_GPIO_RestoreIRQMask(BUTTON_INSTANCE, portIrqMask);
