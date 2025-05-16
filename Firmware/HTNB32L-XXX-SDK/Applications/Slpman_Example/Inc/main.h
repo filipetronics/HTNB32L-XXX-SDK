@@ -67,7 +67,7 @@
 #define USE_AON_PIN 0
 
 /* RTC enable preprocessor */
-#define USE_DEEP_SLEEP_TIMER 0
+#define USE_DEEP_SLEEP_TIMER 1
 
 /* Typedefs  ------------------------------------------------------------------*/
 
