@@ -61,7 +61,7 @@ static void HT_Timer_Init(int seconds) {
     // Config timer period as 1s, match0 value is 32768 = 0x8000
     TIMER_GetDefaultConfig(&timerConfig);
     timerConfig.reloadOption = TIMER_ReloadOnMatch0;
-    timerConfig.match0 = 0x8000*seconds;
+    timerConfig.match0 = 0x8000*seconds;  //8000 = esta em hexadecimal
 
     TIMER_Init(0, &timerConfig);
 
@@ -71,7 +71,7 @@ static void HT_Timer_Init(int seconds) {
     TIMER_InterruptConfig(0, TIMER_Match2Select, TIMER_InterruptDisabled);
 
     // Enable IRQ
-    XIC_SetVector(PXIC_Timer0_IRQn, HT_Timer0_ISR);
+    XIC_SetVector(PXIC_Timer0_IRQn, HT_Timer0_ISR);   //PXIC_Timer0_IRQn É PRE-DEFINIDO. HT_Timer0_ISR = FUNÇÃO 
     XIC_EnableIRQ(PXIC_Timer0_IRQn);
 }
 

@@ -37,6 +37,10 @@ extern void mqtt_demo_onenet(void);
 
 extern USART_HandleTypeDef huart1;
 
+//FUNÇÕES COPIADAS DO HT_ADC_DEMO.c
+
+//
+
 static void HT_SetConnectioParameters(void) {
     uint8_t cid = 0;
     PsAPNSetting apnSetting;

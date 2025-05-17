@@ -145,13 +145,15 @@ static void HT_ADC_InitVbat(void) {
     ADC_ChannelInit(ADC_ChannelVbat, ADC_UserAPP, &vbatConfig, HT_ADC_VbatConversionCallback);
 }
 
-static void HT_ADC_Init(uint8_t channel) {
+//copiar para MQTT EXAMPLE
+static void HT_ADC_Init(uint8_t channel) { 
     ADC_GetDefaultConfig(&adcConfig);
 
     adcConfig.channelConfig.aioResDiv = ADC_AioResDivRatio3Over16; 
 
     ADC_ChannelInit(channel, ADC_UserAPP, &adcConfig, HT_ADC_ConversionCallback);
 }
+//ate aqui
 
 static void HT_ADC_InitThermal(void) {
     ADC_GetDefaultConfig(&thermalConfig);
