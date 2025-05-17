@@ -82,10 +82,22 @@ void Task1(void *pvParameters) {
     int valor = 0;
     while (1) {
         //button_state = (bool) HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
-        button_state = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN); //inverte quando pressionado = 0
-        valor = button_state;
-        xQueueSend(xFila, &valor, portMAX_DELAY);
-        vTaskDelay(pdMS_TO_TICKS(500)); //antes = 50
+        button_state = (bool) HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN); //inverte quando pressionado = 0
+        if (button_state != (bool) valor)
+        {
+            valor = button_state;
+            printf("valor de VALOR: %d\n", valor);
+            xQueueSend(xFila, &valor, portMAX_DELAY);
+            printf("valor de VALOR depois: %d\n", valor);
+
+        }
+        // valor = button_state;
+        // printf("valor de VALOR: %d\n", valor);
+
+        // xQueueSend(xFila, &valor, portMAX_DELAY);
+        // printf("valor de VALOR depois: %d\n", valor);
+        vTaskDelay(pdMS_TO_TICKS(10)); //antes = 50
+        
     }
 }
 
@@ -93,10 +105,11 @@ void Task2(void *pvParameters){
     int recebido = 0;
     while (1){   
         if (xQueueReceive(xFila, &recebido, portMAX_DELAY)){
+        printf("consumiu VALOR: %d\n\n", recebido);
         HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, recebido);
         }
         // HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, button_state);
-        // vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }
 
@@ -120,8 +133,8 @@ void main_entry(void) {
     HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
     printf("Exemplo FreeRTOS\n");
 
-    xTaskCreate(Task1, "Blink", 128, NULL, 1, NULL);
-    xTaskCreate(Task2, "Print", 128, NULL, 1, NULL);
+    xTaskCreate(Task1, "Botao", 128, NULL, 2, NULL);
+    xTaskCreate(Task2, "LED", 128, NULL, 1, NULL);
 
     vTaskStartScheduler();
     
