@@ -21,6 +21,10 @@
 #include "HT_gpio_qcx212.h"
 #include "ic_qcx212.h"
 #include "HT_ic_qcx212.h"
+//#include "HT_ADC_Demo.h"
+#include "queue.h" 
+
+QueueHandle_t xFila;
 
 static uint32_t uart_cntrl = (ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 | ARM_USART_PARITY_NONE | 
                                 ARM_USART_STOP_BITS_1 | ARM_USART_FLOW_CONTROL_NONE);
@@ -35,8 +39,8 @@ extern USART_HandleTypeDef huart1;
 
 //GPIO3 - LED
 #define LED_INSTANCE             0                  /**</ LED pin instance. */
-#define LED_GPIO_PIN             3                  /**</ LED pin number. */
-#define LED_PAD_ID               14                 /**</ LED Pad ID. */
+#define LED_GPIO_PIN             3                  /**</ LED pin number. */   //PIN03 = GPIO3
+#define LED_PAD_ID               14                 /**</ LED Pad ID. */       //PAD ID 14 = GPIO3
 #define LED_PAD_ALT_FUNC         PAD_MuxAlt0        /**</ LED pin alternate function. */
 
 #define LED_ON  1                                   /**</ LED on. */
@@ -75,17 +79,24 @@ static void HT_GPIO_InitLed(void) {
 }
 
 void Task1(void *pvParameters) {
+    int valor = 0;
     while (1) {
-        button_state = (bool) HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        //button_state = (bool) HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN);
+        button_state = HT_GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN); //inverte quando pressionado = 0
+        valor = button_state;
+        xQueueSend(xFila, &valor, portMAX_DELAY);
+        vTaskDelay(pdMS_TO_TICKS(500)); //antes = 50
     }
 }
 
-void Task2(void *pvParameters) {
-    while (1)
-    {   
-        HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, button_state);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+void Task2(void *pvParameters){
+    int recebido = 0;
+    while (1){   
+        if (xQueueReceive(xFila, &recebido, portMAX_DELAY)){
+        HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, recebido);
+        }
+        // HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, button_state);
+        // vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
@@ -95,6 +106,13 @@ void Task2(void *pvParameters) {
   \return
 */
 void main_entry(void) {
+    xFila = xQueueCreate(5,sizeof(int));
+
+    if(xFila == NULL){
+        printf("ERRO AO CRIAR FILA. \n");
+        while (1){}    
+    }
+
     HT_GPIO_InitButton();
     HT_GPIO_InitLed();
     slpManNormalIOVoltSet(IOVOLT_3_30V);
@@ -103,7 +121,7 @@ void main_entry(void) {
     printf("Exemplo FreeRTOS\n");
 
     xTaskCreate(Task1, "Blink", 128, NULL, 1, NULL);
-    xTaskCreate(Task2, "Print", 128, NULL, 2, NULL);
+    xTaskCreate(Task2, "Print", 128, NULL, 1, NULL);
 
     vTaskStartScheduler();
     
